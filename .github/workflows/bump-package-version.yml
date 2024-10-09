@@ -20,7 +20,7 @@ jobs:
           | grep -o "major\|minor\|patch")
 
   bump-version:
-    if: ${{env.BUMP == 'major' }}
+    if: ${{ env.BUMP == 'major' }}
     runs-on: ubuntu-latest
 
     steps:
