@@ -15,9 +15,9 @@ jobs:
 
       - name: Check bump type
         run: |
-          echo 'BUMP=$(echo ${{ github.event.head_commit.message }} \
+          echo BUMP=$(echo ${{ github.event.head_commit.message }} \
           | grep -o "bump:\(major\|minor\|patch\)" \
-          | grep -o "major\|minor\|patch")' >> $GITHUB_ENV
+          | grep -o "major\|minor\|patch") >> $GITHUB_ENV
 
       - name: Bump version
         if: ${{ env.BUMP == 'major' }}
