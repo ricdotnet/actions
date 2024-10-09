@@ -5,8 +5,8 @@ on:
     branches: ["master", "main"]
 
 jobs:
-  check-for-bump-type:
-    name: Check for bump type
+  bump-package-version:
+    name: Bump package version
     runs-on: ubuntu-latest
 
     steps:
@@ -15,15 +15,11 @@ jobs:
 
       - name: Check bump type
         run: |
-          echo BUMP=$(echo ${{ github.event.head_commit.message }} \
+          echo 'BUMP=$(echo ${{ github.event.head_commit.message }} \
           | grep -o "bump:\(major\|minor\|patch\)" \
-          | grep -o "major\|minor\|patch") >> $GITHUB_ENV
+          | grep -o "major\|minor\|patch")' >> $GITHUB_ENV
 
-  bump-version:
-    needs: check-for-bump-type
-    # if: ${{ env.BUMP == 'major' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Print bump type
-        run: echo "hello ${{ env.BUMP }}"
+      - name: Bump version
+        if: ${{ env.BUMP == 'major' }}
+        run: |
+          npm version major
