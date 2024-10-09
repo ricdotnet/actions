@@ -23,3 +23,4 @@ jobs:
         if: ${{ env.BUMP == 'major' || env.BUMP == 'minor' || env.BUMP == 'patch' }}
         run: |
           npm version ${{ env.BUMP }}
+
