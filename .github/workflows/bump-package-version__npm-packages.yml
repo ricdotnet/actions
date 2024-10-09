@@ -4,6 +4,9 @@ on:
   push:
     branches: ["master", "main"]
 
+permissions:
+  contents: write
+
 jobs:
   bump-package-version:
     name: Bump package version
@@ -12,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_ACTIONS }}
 
       - name: Check bump type
         run: |
@@ -19,7 +24,41 @@ jobs:
           | grep -o "bump:\(major\|minor\|patch\)" \
           | grep -o "major\|minor\|patch") >> $GITHUB_ENV
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Set git config
+        if: ${{ env.BUMP == 'major' || env.BUMP == 'minor' || env.BUMP == 'patch' }}
+        run: |
+          git config --global user.name '[Auto] Ricardo Rocha'
+          git config --global user.email 'ricdotnet@users.noreply.github.com'
+
       - name: Bump version
         if: ${{ env.BUMP == 'major' || env.BUMP == 'minor' || env.BUMP == 'patch' }}
         run: |
           npm version ${{ env.BUMP }}
+
+      - name: Push version change
+        if: ${{ env.BUMP == 'major' || env.BUMP == 'minor' || env.BUMP == 'patch' }}
+        run: git push
+
+      - name: Enable corepack
+        if: ${{ env.BUMP == 'major' || env.BUMP == 'minor' || env.BUMP == 'patch' }}
+        run: corepack enable
+
+      - name: Build package
+        if: ${{ env.BUMP == 'major' || env.BUMP == 'minor' || env.BUMP == 'patch' }}
+        run: |
+          yarn install
+          yarn build
+          cp package.json ./dist
+
+      - name: Publish to npm
+        if: ${{ env.BUMP == 'major' || env.BUMP == 'minor' || env.BUMP == 'patch' }}
+        working-directory: ./dist
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
