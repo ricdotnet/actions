@@ -19,6 +19,7 @@ jobs:
           node-version: "20"
 
       - run: |
-          echo ${{ github.event.head_commit.message }} \
+          BUMP=$(echo ${{ github.event.head_commit.message }} \
           | grep -o "bump:\(major\|minor\|patch\)" \
-          | grep -o "major\|minor\|patch"
+          | grep -o "major\|minor\|patch")
+          echo $BUMP
